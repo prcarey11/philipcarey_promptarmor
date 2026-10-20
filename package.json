@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test src/lib/__tests__/data.test.ts",
+    "test": "tsx --test src/lib/__tests__/*.test.ts",
+    "test:rules": "tsx --test src/lib/__tests__/rules.test.ts",
+    "test:data": "tsx --test src/lib/__tests__/data.test.ts",
     "test:schema": "psql $DATABASE_URL -f supabase/migrations/001_schema_test.sql"
   },
   "dependencies": {
