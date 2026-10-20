@@ -8,8 +8,32 @@ import { createSubmission } from "@/lib/data/submissions";
 import { createVersion, updatePreCheckStatus } from "@/lib/data/versions";
 import { createFlags, updateFlagState } from "@/lib/data/flags";
 import { createReview } from "@/lib/data/reviews";
-import { runRuleChecks } from "@/lib/rules";
-import { runLlmPreCheck } from "@/lib/llm/pre-check";
+import { runRuleChecks, type FlagInput } from "@/lib/rules";
+import { runLlmPreCheck, type PreCheckResult } from "@/lib/llm/pre-check";
+
+export interface PreviewCheckResult {
+  ruleFlags: FlagInput[];
+  llmFlags: FlagInput[];
+  llmStatus: PreCheckResult["status"];
+}
+
+/** Runs rule checks + LLM pre-check without writing to the database. */
+export async function previewCheck(formData: FormData): Promise<PreviewCheckResult> {
+  const content = formData.get("content") as string;
+  const product = formData.get("product") as string;
+  const channel = formData.get("channel") as string;
+
+  const [ruleFlags, llmResult] = await Promise.all([
+    Promise.resolve(runRuleChecks(content, product)),
+    runLlmPreCheck(content, product, channel),
+  ]);
+
+  return {
+    ruleFlags,
+    llmFlags: llmResult.flags,
+    llmStatus: llmResult.status,
+  };
+}
 
 export async function switchRole(formData: FormData) {
   const role = formData.get("role") as string;
