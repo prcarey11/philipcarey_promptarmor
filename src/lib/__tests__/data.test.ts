@@ -196,6 +196,12 @@ describe("listSubmissions", () => {
     list = await listSubmissions();
     entry = list.find((s) => s.id === submission.id)!;
     assert.equal(entry.status, "approved");
+
+    // After new version post-approval: back to submitted
+    const v3 = await createVersion("alice", submission.id, "post-approval edit");
+    list = await listSubmissions();
+    entry = list.find((s) => s.id === submission.id)!;
+    assert.equal(entry.status, "submitted");
   });
 });
 

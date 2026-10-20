@@ -223,8 +223,8 @@ export default async function SubmissionDetailPage({
         </div>
       )}
 
-      {/* Revision Form (submitter, when changes requested) */}
-      {!isReviewer && submission.status === "changes_requested" && (
+      {/* Revision Form (submitter, when changes requested or approved) */}
+      {!isReviewer && (submission.status === "changes_requested" || submission.status === "approved") && (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h2 className="text-sm font-medium text-gray-700 mb-2">Revise Ad Copy</h2>
           <form action={reviseSubmission.bind(null, submission.id)} className="space-y-3">
