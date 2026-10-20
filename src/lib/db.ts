@@ -1,12 +1,8 @@
 import { Pool, type PoolClient, type QueryResultRow } from "pg";
 
-// Tests set NODE_ENV=test and use TEST_DATABASE_URL
-const connectionString =
-  process.env.NODE_ENV === "test"
-    ? process.env.TEST_DATABASE_URL
-    : process.env.DATABASE_URL;
-
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
