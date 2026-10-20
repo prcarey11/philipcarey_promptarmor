@@ -1,5 +1,17 @@
-import { describe, it, after } from "node:test";
+import { describe, it, after, before } from "node:test";
 import assert from "node:assert/strict";
+
+// Safety: tests must use TEST_DATABASE_URL, and it must differ from DATABASE_URL
+if (!process.env.TEST_DATABASE_URL) {
+  console.error("TEST_DATABASE_URL is not set. Aborting.");
+  process.exit(1);
+}
+if (process.env.TEST_DATABASE_URL === process.env.DATABASE_URL) {
+  console.error("TEST_DATABASE_URL must differ from DATABASE_URL. Aborting.");
+  process.exit(1);
+}
+process.env.NODE_ENV = "test";
+
 import { pool, query } from "../db";
 import { createSubmission } from "../data/submissions";
 import { createVersion, updatePreCheckStatus } from "../data/versions";
