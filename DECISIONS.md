@@ -1,5 +1,16 @@
 ## Decisions
 
+### Structured LLM call, not an agent
+**Chose:** a single constrained LLM call per submission with forced tool use
+and a fixed enum of judgment categories.
+**Over:** an agentic loop where the model decides what to check and how to act.
+**Because:** compliance review is a regulated domain. The AI should draft
+redlines, not make decisions. Deterministic rules handle what's testable and
+explainable to an examiner. The LLM handles judgment calls (net impression,
+fine-print contradictions) that rules can't. A human reviews everything.
+**Trade-off:** the AI can't iteratively investigate or ask follow-up questions.
+That's acceptable — each ad is a bounded artifact, not an open-ended task.
+
 ### Status is derived, not stored
 **Chose:** computing status from the latest version's most recent review.
 **Over:** a status column the app updates.
