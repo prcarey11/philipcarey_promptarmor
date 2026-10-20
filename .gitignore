@@ -1,0 +1,28 @@
+# secrets
+.env*
+!.env.example
+
+# dependencies
+node_modules/
+
+# Next.js / build output
+.next/
+out/
+build/
+dist/
+
+# Vercel
+.vercel/
+
+# tests
+coverage/
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/

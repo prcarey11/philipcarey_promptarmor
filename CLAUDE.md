@@ -6,10 +6,11 @@ Domain background is in docs/RESEARCH.md; the original brief is docs/PROJECT_SPE
 
 ## Stack (do not change without asking)
 - Next.js (App Router) + TypeScript
-- Postgres (Supabase or Neon)
+- Postgres (Supabase)
 - Deployed on Vercel
 - Claude API for the pre-check, using structured output only
 - No real auth. A role switcher (Reviewer / Submitter) is stored in a cookie.
+- DB access is server-side only via a Postgres driver (pg) using DATABASE_URL. Never use supabase-js; the Data API is disabled.
 
 ## Domain model (starting point)
 - **submissions**: one ad asset (title, channel, product, submitter, current status)
@@ -34,3 +35,7 @@ Domain background is in docs/RESEARCH.md; the original brief is docs/PROJECT_SPE
 - Rule checks are plain TypeScript functions in `lib/rules/`, each with unit tests.
 - When finishing a slice, list: what changed, which invariants it touches, and how they're tested.
 - Seed data covers clean ads, ads with violations, and one prompt-injection ad.
+- At the end of each slice, append proposed entries to DECISIONS.md in this
+  format, then stop so I can edit them:
+  ## <Decision>
+  **Chose:** X. **Over:** Y. **Because:** one sentence. **Trade-off:** one sentence.
