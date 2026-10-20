@@ -5,7 +5,8 @@ import { getSubmission, getAuditLog, type FlagRow, type VersionRow, type AuditEv
 import { lineDiff, type DiffLine } from "@/lib/diff";
 import { STATUS_LABELS, SOURCE_LABELS, CHANNEL_LABELS } from "@/lib/labels";
 import { getRole } from "@/lib/role";
-import { acceptFlag, dismissFlag, resolveFlag, submitReview, reviseSubmission } from "@/app/actions";
+import { resolveFlag, submitReview, reviseSubmission } from "@/app/actions";
+import { FlagActions } from "./flag-actions";
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -168,32 +169,8 @@ export default async function SubmissionDetailPage({
                     </p>
                   </div>
                   {isReviewer && (
-                    <div className="flex gap-2 shrink-0">
-                      <form action={acceptFlag.bind(null, flag.id, submission.id)}>
-                        <button
-                          type="submit"
-                          className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200"
-                        >
-                          Accept
-                        </button>
-                      </form>
-                      <form action={dismissFlag} className="flex gap-1">
-                        <input type="hidden" name="flagId" value={flag.id} />
-                        <input type="hidden" name="submissionId" value={submission.id} />
-                        <input
-                          type="text"
-                          name="reason"
-                          required
-                          placeholder="Dismiss reason"
-                          className="text-xs border border-gray-300 rounded px-2 py-1 w-36"
-                        />
-                        <button
-                          type="submit"
-                          className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200"
-                        >
-                          Dismiss
-                        </button>
-                      </form>
+                    <div className="shrink-0">
+                      <FlagActions flagId={flag.id} submissionId={submission.id} />
                     </div>
                   )}
                 </div>
