@@ -1,6 +1,6 @@
 # ClearPath Compliance Review
 
-> Live app: https://clearpath-compliance-ten.vercel.app/ · Walkthrough video: <Loom link>
+> Live app: https://clearpath-compliance-ten.vercel.app/ · [Walkthrough video](https://www.loom.com/share/b6dcc9edbf574ecaa24056d7df347c8c)
 
 ## Problem
 
@@ -92,26 +92,18 @@ The submitter self-check doubles the API calls but saves entire review rounds. E
 ## Running locally
 
 ```bash
-# Install dependencies
 npm install
 
-# Set environment variables
 cp .env.example .env.local
-# Edit .env.local with your DATABASE_URL and ANTHROPIC_API_KEY
+# Edit .env.local: set DATABASE_URL (Postgres) and ANTHROPIC_API_KEY
 
-# Apply database migrations
-psql $DATABASE_URL -f supabase/migrations/001_schema.sql
-psql $DATABASE_URL -f supabase/migrations/002_pre_check_status.sql
-
-# Seed demo data (runs rule checks + LLM pre-checks, takes ~60s)
-npx tsx scripts/seed.ts
+# Set up the database (applies migrations + seeds demo data, ~60s)
+npx tsx scripts/reset-db.ts --target=dev --confirm
 
 # Run tests
-npm test                    # all tests
-npm run test:rules          # rule checks only (no DB needed)
-npm run test:schema         # SQL invariant tests
+npm test              # all tests (unit + DB)
+npm run test:rules    # rule checks only (no DB needed)
 
 # Start the dev server
 npm run dev
-# Open http://localhost:3000
 ```
