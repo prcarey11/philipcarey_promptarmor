@@ -121,7 +121,18 @@ export async function submitReview(formData: FormData) {
   const decision = formData.get("decision") as "approved" | "changes_requested";
   const submissionId = formData.get("submissionId") as string;
 
-  await createReview(actor, versionId, decision);
+  try {
+    await createReview(actor, versionId, decision);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Review failed";
+    if (message.includes("Reviewer cannot be the submitter")) {
+      redirect(`/submissions/${submissionId}?error=${encodeURIComponent("You cannot review your own submission.")}`);
+    }
+    if (message.includes("unresolved flag")) {
+      redirect(`/submissions/${submissionId}?error=${encodeURIComponent("All flags must be resolved or dismissed before approving.")}`);
+    }
+    throw err;
+  }
   revalidatePath(`/submissions/${submissionId}`);
   redirect(`/submissions/${submissionId}`);
 }

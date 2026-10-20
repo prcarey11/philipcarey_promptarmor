@@ -42,10 +42,13 @@ function SourceBadge({ source }: { source: string }) {
 
 export default async function SubmissionDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const submission = await getSubmission(id);
   if (!submission) notFound();
 
@@ -77,6 +80,13 @@ export default async function SubmissionDetailPage({
           &middot; Version {latestVersion.version_number}
         </p>
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded px-4 py-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
 
       {/* Pre-check status banner */}
       {latestVersion.pre_check_status === "failed" && (
