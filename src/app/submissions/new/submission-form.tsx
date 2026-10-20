@@ -114,7 +114,7 @@ export function SubmissionForm() {
     <div className="max-w-2xl space-y-6">
       <h1 className="text-xl font-semibold">New Submission</h1>
 
-      <form ref={formRef} action={submitAd} className="space-y-4">
+      <form ref={formRef} action={(formData) => { setPreview(null); return submitAd(formData); }} className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
             Title
