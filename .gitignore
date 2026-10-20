@@ -26,3 +26,14 @@ coverage/
 # Supabase local
 supabase/.temp/
 supabase/.branches/
+
+# Auto-generated
+AGENTS.md
+
+# Test/audit output (source files are committed)
+audit/screenshots/
+audit/test-results/
+audit/REPORT.md
+
+# Personal notes
+docs/QA_SCRIPT.md
