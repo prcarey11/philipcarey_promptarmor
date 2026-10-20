@@ -94,32 +94,46 @@ export async function reviseSubmission(submissionId: string, formData: FormData)
   redirect(`/submissions/${submissionId}`);
 }
 
+function requireRole(actual: string, expected: string, submissionId: string): void {
+  if (actual !== expected) {
+    throw redirect(`/submissions/${submissionId}?error=${encodeURIComponent(`This action requires the ${expected} role.`)}`);
+  }
+}
+
 export async function acceptFlag(flagId: string, submissionId: string) {
+  const role = await getRole();
+  requireRole(role, "reviewer", submissionId);
   const actor = await getActorName();
   await updateFlagState(actor, flagId, "accepted");
   revalidatePath(`/submissions/${submissionId}`);
 }
 
 export async function dismissFlag(formData: FormData) {
-  const actor = await getActorName();
   const flagId = formData.get("flagId") as string;
   const submissionId = formData.get("submissionId") as string;
+  const role = await getRole();
+  requireRole(role, "reviewer", submissionId);
+  const actor = await getActorName();
   const reason = formData.get("reason") as string;
   await updateFlagState(actor, flagId, "dismissed", reason);
   revalidatePath(`/submissions/${submissionId}`);
 }
 
 export async function resolveFlag(flagId: string, submissionId: string) {
+  const role = await getRole();
+  requireRole(role, "submitter", submissionId);
   const actor = await getActorName();
   await updateFlagState(actor, flagId, "resolved");
   revalidatePath(`/submissions/${submissionId}`);
 }
 
 export async function submitReview(formData: FormData) {
+  const submissionId = formData.get("submissionId") as string;
+  const role = await getRole();
+  requireRole(role, "reviewer", submissionId);
   const actor = await getActorName();
   const versionId = formData.get("versionId") as string;
   const decision = formData.get("decision") as "approved" | "changes_requested";
-  const submissionId = formData.get("submissionId") as string;
 
   try {
     await createReview(actor, versionId, decision);
