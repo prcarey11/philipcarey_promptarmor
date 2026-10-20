@@ -108,7 +108,7 @@ test("2. Approve blocked by accepted flags", async ({ page }) => {
   await page.reload();
 
   // Use the seeded violation ad
-  const violationLink = page.locator('a:has-text("Mortgage Landing Page")');
+  const violationLink = page.locator('a:has-text("Dream Home Spring Campaign")');
   await expect(violationLink).toBeVisible();
   await violationLink.click();
   await page.waitForLoadState("networkidle");
@@ -193,7 +193,7 @@ ClearPath Financial NMLS #123456`
     await snap(page, "03f-revision-submitted");
 
     // Assert Version 2 is visible
-    const versionText = page.locator("text=Version 2");
+    const versionText = page.locator('h2:has-text("Version 2")');
     await expect(versionText).toBeVisible({ timeout: 5000 });
 
     // Assert status is Submitted (not Changes Requested)
@@ -331,10 +331,10 @@ test("6. Prompt injection ad flagged", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   await snap(page, "06a-queue");
 
-  // Find and click the injection ad (matches both old and new seed titles)
-  const injectionLink = page.locator('a:has-text("njection")');
-  await expect(injectionLink.first()).toBeVisible();
-  await injectionLink.first().click();
+  // Find and click the injection ad
+  const injectionLink = page.locator('a:has-text("Quick Cash SMS")');
+  await expect(injectionLink).toBeVisible();
+  await injectionLink.click();
   await page.waitForLoadState("networkidle");
   await snap(page, "06b-injection-ad-detail");
 
@@ -363,7 +363,7 @@ test("7. Audit log completeness", async ({ page }) => {
   await setRole(page, "reviewer", `Rev7-${RUN_ID}`);
   await page.reload();
 
-  const inReviewLink = page.locator('a:has-text("Credit Card Social Post")');
+  const inReviewLink = page.locator('a:has-text("Personal Loan Holiday Promo")');
   await expect(inReviewLink).toBeVisible();
   await inReviewLink.click();
   await page.waitForLoadState("networkidle");
