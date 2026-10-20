@@ -241,15 +241,20 @@ async function main() {
   }
   await updatePreCheckStatus(mrV2.id, llmResult2.status);
 
-  // Resolve the accepted flags
-  const accepted = await query(
-    "SELECT id FROM flags WHERE submission_id = $1 AND state = 'accepted'",
-    [multiRound.id]
+  // Resolve accepted flags and dismiss remaining v1 open flags
+  // (v2 fixed the issues, so v1 flags no longer apply)
+  const unresolvedV1 = await query(
+    "SELECT id, state FROM flags WHERE submission_id = $1 AND version_id = $2 AND state IN ('open', 'accepted')",
+    [multiRound.id, mrV1.id]
   );
-  for (const row of accepted.rows) {
-    await updateFlagState("Jordan Rivera (Marketing)", row.id, "resolved");
+  for (const row of unresolvedV1.rows) {
+    if (row.state === "accepted") {
+      await updateFlagState("Jordan Rivera (Marketing)", row.id, "resolved");
+    } else {
+      await updateFlagState("Alex Chen (Compliance)", row.id, "dismissed", "Fixed in v2");
+    }
   }
-  console.log("    → Submitter resolved flags and submitted v2");
+  console.log("    → v1 flags resolved/dismissed, v2 submitted clean");
 
   // 8: Approved ad (full flow: submit -> dismiss flags -> approve)
   const { submission: approved, version: apV1 } = await seedSubmission(APPROVED_AD);
