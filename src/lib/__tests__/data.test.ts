@@ -2,7 +2,7 @@ import { describe, it, after } from "node:test";
 import assert from "node:assert/strict";
 import { pool, query } from "../db";
 import { createSubmission } from "../data/submissions";
-import { createVersion } from "../data/versions";
+import { createVersion, updatePreCheckStatus } from "../data/versions";
 import { createFlags, updateFlagState } from "../data/flags";
 import { createReview } from "../data/reviews";
 import { listSubmissions, getSubmission } from "../data/queries";
@@ -165,7 +165,7 @@ describe("createReview", () => {
 
     await assert.rejects(
       () => createReview("bob", version.id, "approved"),
-      (err: Error) => err.message.includes("accepted flag")
+      (err: Error) => err.message.includes("unresolved flag")
     );
   });
 });
@@ -221,5 +221,20 @@ describe("getSubmission", () => {
     // Flag raised on v1 is still present via submission_id
     assert.equal(result.flags.length, 1);
     assert.equal(result.flags[0].version_id, version.id);
+  });
+});
+
+describe("updatePreCheckStatus", () => {
+  it("writes an audit event with actor=system", async () => {
+    const { submission, version } = await makeSubmission();
+    await updatePreCheckStatus(version.id, "completed");
+
+    const audit = await query(
+      "SELECT * FROM audit_events WHERE submission_id = $1 AND action = 'pre_check_status_updated'",
+      [submission.id]
+    );
+    assert.equal(audit.rows.length, 1);
+    assert.equal(audit.rows[0].actor, "system");
+    assert.equal(audit.rows[0].payload.status, "completed");
   });
 });
