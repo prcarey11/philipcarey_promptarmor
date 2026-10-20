@@ -3,7 +3,8 @@
  * This is the only sanctioned way to clear immutable tables.
  *
  * Usage:
- *   DATABASE_URL=... ANTHROPIC_API_KEY=... npx tsx scripts/reset-db.ts --confirm
+ *   npx tsx scripts/reset-db.ts --target=dev  --confirm   # resets DATABASE_URL (local/test)
+ *   npx tsx scripts/reset-db.ts --target=prod --confirm   # resets PROD_DATABASE_URL
  *
  * Without --confirm, prints what it would do and exits.
  */
@@ -12,34 +13,47 @@ import { Pool } from "pg";
 import fs from "fs";
 import path from "path";
 
-const connectionString = process.env.DATABASE_URL;
+const args = process.argv.slice(2);
+const targetArg = args.find((a) => a.startsWith("--target="));
+const target = targetArg?.split("=")[1];
+const confirmed = args.includes("--confirm");
+
+if (target !== "dev" && target !== "prod") {
+  console.error("Usage: npx tsx scripts/reset-db.ts --target=dev|prod [--confirm]");
+  process.exit(1);
+}
+
+const envVar = target === "prod" ? "PROD_DATABASE_URL" : "DATABASE_URL";
+const connectionString = process.env[envVar];
+
 if (!connectionString) {
-  console.error("DATABASE_URL is not set.");
+  console.error(`${envVar} is not set.`);
   process.exit(1);
 }
 
 const host = new URL(connectionString).hostname;
-const confirmed = process.argv.includes("--confirm");
 
 if (!confirmed) {
-  console.log(`Would reset database on: ${host}`);
+  console.log(`Would reset ${target} database on: ${host}`);
+  console.log(`  Reading from: ${envVar}`);
   console.log("Pass --confirm to proceed.");
   process.exit(0);
 }
 
-console.log(`Resetting database on: ${host}`);
+console.log(`Resetting ${target} database on: ${host}`);
+
+// Set DATABASE_URL so db.ts (used by seed) connects to the right place
+process.env.DATABASE_URL = connectionString;
 
 const pool = new Pool({ connectionString });
 
 async function run() {
-  // Drop and recreate public schema (wipes everything)
   console.log("  Dropping public schema...");
   await pool.query("DROP SCHEMA public CASCADE");
   await pool.query("CREATE SCHEMA public");
   await pool.query("GRANT ALL ON SCHEMA public TO postgres");
   await pool.query("GRANT ALL ON SCHEMA public TO public");
 
-  // Apply migrations in order
   const migrationsDir = path.join(__dirname, "..", "supabase", "migrations");
   const files = fs.readdirSync(migrationsDir)
     .filter((f) => f.endsWith(".sql") && !f.includes("_test"))
@@ -54,9 +68,7 @@ async function run() {
   console.log("  Migrations applied.");
   await pool.end();
 
-  // Run seed (it creates its own pool via db.ts)
   console.log("  Running seed...");
-  // Dynamic import so it picks up the fresh schema
   await import("./seed");
 }
 
