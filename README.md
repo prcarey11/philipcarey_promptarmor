@@ -84,4 +84,27 @@ Reviewers can **accept** a flag, which sends it to the submitter as a required c
 
 ## Running locally
 
-<fill in>
+```bash
+# Install dependencies
+npm install
+
+# Set environment variables
+cp .env.example .env.local
+# Edit .env.local with your DATABASE_URL and ANTHROPIC_API_KEY
+
+# Apply database migrations
+psql $DATABASE_URL -f supabase/migrations/001_schema.sql
+psql $DATABASE_URL -f supabase/migrations/002_pre_check_status.sql
+
+# Seed demo data (runs rule checks + LLM pre-checks, takes ~60s)
+npx tsx scripts/seed.ts
+
+# Run tests
+npm test                    # all tests
+npm run test:rules          # rule checks only (no DB needed)
+npm run test:schema         # SQL invariant tests
+
+# Start the dev server
+npm run dev
+# Open http://localhost:3000
+```
