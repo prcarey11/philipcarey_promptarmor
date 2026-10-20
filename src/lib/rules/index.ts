@@ -1,6 +1,7 @@
 import { checkTriggerTerms } from "./trigger-terms";
 import { checkRequiredIdentifiers } from "./required-identifiers";
 import { checkUdaapRisk } from "./udaap-risk";
+import { checkInjectionPatterns } from "./injection-patterns";
 import type { FlagInput } from "./types";
 
 export type { FlagInput };
@@ -17,5 +18,6 @@ export function runRuleChecks(
     ...checkTriggerTerms(content),
     ...checkRequiredIdentifiers(content, product),
     ...checkUdaapRisk(content),
+    ...checkInjectionPatterns(content),
   ];
 }

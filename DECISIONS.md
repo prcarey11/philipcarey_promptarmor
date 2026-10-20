@@ -66,6 +66,33 @@ the audit row. The helper is the only code that calls BEGIN/COMMIT.
 **Because:** Node's test runner needs no config. `tsx` handles imports without
 requiring `.ts` extensions everywhere. One dev dependency, zero config files.
 
+### Layered defense against prompt injection in ad text
+**Chose:** four independent layers: (1) XML tag sanitization strips `<ad_content>`
+from ad text before wrapping; (2) system prompt declares delimited content is
+data, never instructions; (3) a deterministic rule flags instruction-like
+patterns (source='rule') so they survive even if the LLM is steered; (4) forced
+tool use (`tool_choice`) eliminates free-text response paths.
+**Over:** relying on the system prompt alone to resist injection.
+**Because:** any single layer can fail. The rule-based injection detector is the
+backstop — it runs independently of the LLM, so a suppressed LLM flag still
+shows up for the reviewer.
+
+### LLM judgment categories are a fixed enum, not free text
+**Chose:** the rule field on LLM flags is constrained to a closed set of
+judgment categories (e.g. "UDAAP – net impression", "Prompt injection attempt").
+**Over:** letting the LLM write arbitrary regulation citations.
+**Because:** the LLM hallucinated § numbers when given free text. Only rule-based
+checks cite regulation sections, because they're deterministic and testable.
+
+### Pre-check status tracked per version, not inferred
+**Chose:** a `pre_check_status` column on `versions` (pending/completed/failed/skipped).
+**Over:** returning [] and hoping the reviewer notices.
+**Because:** a silent failure (API error → empty flags) looks exactly like "AI
+found nothing." The UI shows "AI pre-check unavailable — rule checks only" when
+status is failed, so the reviewer knows the AI didn't run.
+**Trade-off:** the immutability trigger on versions now allows updating this one
+column. Content immutability is preserved; only the pre-check status can change.
+
 ### Rotated the DB password after it appeared in tool output
 A special character broke URL parsing, and part of the password was printed in
 the terminal. Rotated to an alphanumeric password instead of working around it,

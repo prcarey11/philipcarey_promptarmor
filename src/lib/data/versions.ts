@@ -1,10 +1,12 @@
 import { withAudit } from "../audit";
+import { query } from "../db";
 
 interface Version {
   id: string;
   submission_id: string;
   version_number: number;
   content: string;
+  pre_check_status: string;
   created_at: Date;
 }
 
@@ -30,5 +32,17 @@ export async function createVersion(
       );
       return result.rows[0];
     }
+  );
+}
+
+export type PreCheckStatus = "pending" | "completed" | "failed" | "skipped";
+
+export async function updatePreCheckStatus(
+  versionId: string,
+  status: PreCheckStatus
+): Promise<void> {
+  await query(
+    "UPDATE versions SET pre_check_status = $2 WHERE id = $1",
+    [versionId, status]
   );
 }
