@@ -6,7 +6,7 @@ import type { FlagInput } from "../rules/types";
 // ---------------------------------------------------------------------------
 
 const MODEL_ID = "claude-sonnet-4-6";
-const MAX_CONTENT_CHARS = 5000;
+const MAX_CONTENT_CHARS = 2000;
 const MAX_TOKENS = 1024;
 const TEMPERATURE = 0;
 

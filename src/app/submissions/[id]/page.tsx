@@ -65,18 +65,25 @@ export default async function SubmissionDetailPage({
   const unresolvedFlags = [...openFlags, ...acceptedFlags];
   const hasUnresolvedFlags = unresolvedFlags.length > 0;
 
-  // Find the last reviewed version to show a diff
+  // Show diff: for reviewer, compare against last reviewed version;
+  // for submitter, compare against the previous version
+  const previousVersion = submission.versions.length > 1 ? submission.versions[1] : null;
   const lastReview = submission.reviews[0]; // sorted DESC by created_at
   const lastReviewedVersion = lastReview
     ? submission.versions.find((v: VersionRow) => v.id === lastReview.version_id)
     : null;
-  const showDiff =
-    isReviewer &&
-    lastReviewedVersion &&
-    lastReviewedVersion.id !== latestVersion.id;
-  const diffLines: DiffLine[] = showDiff
-    ? lineDiff(lastReviewedVersion.content, latestVersion.content)
+
+  const diffBase = isReviewer
+    ? (lastReviewedVersion && lastReviewedVersion.id !== latestVersion.id ? lastReviewedVersion : null)
+    : (previousVersion && previousVersion.id !== latestVersion.id ? previousVersion : null);
+  const diffLines: DiffLine[] = diffBase
+    ? lineDiff(diffBase.content, latestVersion.content)
     : [];
+  const diffLabel = isReviewer && lastReviewedVersion
+    ? `Changes since last reviewed version (v${lastReviewedVersion.version_number} → v${latestVersion.version_number})`
+    : diffBase
+      ? `Changes from previous version (v${diffBase.version_number} → v${latestVersion.version_number})`
+      : "";
 
   return (
     <div className="space-y-6">
@@ -122,10 +129,10 @@ export default async function SubmissionDetailPage({
       </div>
 
       {/* Version Diff */}
-      {showDiff && diffLines.length > 0 && (
+      {diffBase && diffLines.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h2 className="text-sm font-medium text-gray-500 mb-2">
-            Changes since last reviewed version (v{lastReviewedVersion.version_number} → v{latestVersion.version_number})
+            {diffLabel}
           </h2>
           <pre className="text-sm font-mono bg-gray-50 rounded p-3 overflow-x-auto">
             {diffLines.map((line: DiffLine, i: number) => (
@@ -263,6 +270,7 @@ export default async function SubmissionDetailPage({
               name="content"
               required
               rows={8}
+              maxLength={2000}
               defaultValue={latestVersion.content}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono"
             />

@@ -161,6 +161,7 @@ export function SubmissionForm() {
             name="content"
             required
             rows={10}
+            maxLength={2000}
             placeholder="Paste the full ad copy here..."
             className="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono"
           />
