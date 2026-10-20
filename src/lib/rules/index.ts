@@ -15,7 +15,7 @@ export function runRuleChecks(
   product: string,
 ): FlagInput[] {
   return [
-    ...checkTriggerTerms(content),
+    ...checkTriggerTerms(content, product),
     ...checkRequiredIdentifiers(content, product),
     ...checkUdaapRisk(content),
     ...checkInjectionPatterns(content),

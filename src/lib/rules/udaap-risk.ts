@@ -52,6 +52,11 @@ const RISK_PHRASES: RiskPhrase[] = [
     problem: "False urgency combined with time pressure may be deceptive",
     fix: "If the offer has a real deadline, state it clearly; otherwise remove urgency language",
   },
+  {
+    pattern: /\bpre[\s-]?approved\b/i,
+    problem: '"Pre-approved" implies a credit decision has been made — the product is prequalification, not preapproval',
+    fix: 'Replace with "pre-qualified" or "see if you qualify"',
+  },
 ];
 
 export function checkUdaapRisk(content: string): FlagInput[] {

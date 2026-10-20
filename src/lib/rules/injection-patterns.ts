@@ -15,8 +15,6 @@ const INJECTION_PATTERNS: InjectionPattern[] = [
   { pattern: /ignore\s+(?:all\s+)?(?:previous|above|prior)\s+instructions/i, description: "ignore instructions" },
   { pattern: /disregard\s+(?:the\s+)?(?:above|previous|prior)/i, description: "disregard instructions" },
   { pattern: /forget\s+(?:your|all|the)\s+instructions/i, description: "forget instructions" },
-  { pattern: /you\s+are\s+now\b/i, description: "role reassignment" },
-  { pattern: /(?:act|behave)\s+as\s+(?:if|though)?\s*(?:a|an)?\s*(?!now)/i, description: "role reassignment" },
   { pattern: /pretend\s+(?:to\s+be|you(?:'re|\s+are))/i, description: "role reassignment" },
   { pattern: /mark\s+(?:as\s+)?(?:compliant|approved|clean)/i, description: "compliance override" },
   { pattern: /report\s+no\s+(?:issues|problems|violations|flags)/i, description: "suppress findings" },
@@ -25,12 +23,24 @@ const INJECTION_PATTERNS: InjectionPattern[] = [
   { pattern: /output\s+(?:only\s+)?(?:empty|no|zero)\s+(?:flags|issues|results)/i, description: "suppress findings" },
 ];
 
+/**
+ * NFKC-normalize and strip zero-width characters before matching.
+ * This defeats Unicode obfuscation (full-width chars, zero-width joiners, etc.).
+ */
+export function normalizeForMatching(text: string): string {
+  return text
+    .normalize("NFKC")
+    // Strip zero-width characters: ZWSP, ZWNJ, ZWJ, ZWNBSP (BOM)
+    .replace(/[\u200B\u200C\u200D\uFEFF]/g, "");
+}
+
 export function checkInjectionPatterns(content: string): FlagInput[] {
+  const normalized = normalizeForMatching(content);
   const flags: FlagInput[] = [];
   const seen = new Set<string>();
 
   for (const { pattern, description } of INJECTION_PATTERNS) {
-    const match = content.match(pattern);
+    const match = normalized.match(pattern);
     if (match && !seen.has(description)) {
       seen.add(description);
       flags.push({
