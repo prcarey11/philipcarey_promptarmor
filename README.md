@@ -72,12 +72,19 @@ Reviewers can **accept** a flag, which sends it to the submitter as a required c
 ## How I'd measure success
 
 - **Time to decision:** submitted to approved.
-- **Rounds per approval:** fewer rounds means better first-pass feedback.
+- **Rounds per approval:** fewer rounds means better first-pass feedback. The submitter self-check should reduce this directly — submitters fix obvious violations before the reviewer ever sees the ad.
 - **Assets decided per reviewer per week:** the compliance team's throughput.
+
+### Why this pays for itself
+
+A compliance reviewer currently spends 30–45 minutes per ad, reading from scratch and writing every comment by hand. With the pre-check drafting redlines, the reviewer edits instead of writes — roughly 10–15 minutes per ad, a 2–3x throughput gain.
+
+The AI cost is small: each pre-check uses Claude Sonnet (~1,500 input tokens per ad at $3/M input, $15/M output). A typical check costs $0.01–0.02. At 200 ads/month, that's $2–4/month in API costs — a rounding error against a single reviewer's salary.
+
+The submitter self-check doubles the API calls but saves entire review rounds. Each avoided round saves 30+ minutes of reviewer time and days of calendar time.
 
 ## What I'd build next
 
-- **Submitter self-check:** run the pre-check before submitting, which cuts rounds per approval.
 - **Approved disclosure library:** reuse pre-approved blocks instead of reviewing them every time.
 - **Approval conditions and expiry:** for example, "valid while APR is X," with alerts when the rate sheet changes.
 - **Image and PDF support.**
