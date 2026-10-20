@@ -46,6 +46,26 @@ approval directly. The only write path is app code that enforces the rules.
 **Trade-off:** tests share the demo DB, mitigated by per-test rollback.
 In a real project I'd separate them.
 
+### Raw pg, no ORM or query builder
+**Chose:** raw SQL via the `pg` library.
+**Over:** Prisma, Drizzle, or Knex.
+**Because:** the schema is small, the queries are straightforward, and an ORM
+adds a build step and abstraction layer that obscures what's actually happening.
+Raw SQL matches the "boring, explicit" principle.
+**Trade-off:** no migration tooling or type generation from schema — we type by hand.
+
+### One `withAudit` helper wraps every write
+**Chose:** a single function that runs mutation + audit INSERT in one transaction.
+**Over:** ad-hoc transactions in each data function.
+**Because:** if every write goes through one function, it's impossible to forget
+the audit row. The helper is the only code that calls BEGIN/COMMIT.
+
+### tsx for running TypeScript tests
+**Chose:** `tsx --test` with Node's built-in test runner.
+**Over:** Jest, Vitest, or `--experimental-strip-types`.
+**Because:** Node's test runner needs no config. `tsx` handles imports without
+requiring `.ts` extensions everywhere. One dev dependency, zero config files.
+
 ### Rotated the DB password after it appeared in tool output
 A special character broke URL parsing, and part of the password was printed in
 the terminal. Rotated to an alphanumeric password instead of working around it,
