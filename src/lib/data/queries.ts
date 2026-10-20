@@ -45,9 +45,18 @@ export interface AuditEventRow {
   created_at: Date;
 }
 
+export interface ReviewRow {
+  id: string;
+  version_id: string;
+  reviewer: string;
+  decision: string;
+  created_at: Date;
+}
+
 export interface SubmissionDetail extends SubmissionRow {
   versions: VersionRow[];
   flags: FlagRow[];
+  reviews: ReviewRow[];
 }
 
 export async function listSubmissions(): Promise<SubmissionRow[]> {
@@ -75,10 +84,16 @@ export async function getSubmission(id: string): Promise<SubmissionDetail | null
     [id]
   );
 
+  const reviewsResult = await query<ReviewRow>(
+    `SELECT * FROM reviews WHERE version_id IN (SELECT id FROM versions WHERE submission_id = $1) ORDER BY created_at DESC`,
+    [id]
+  );
+
   return {
     ...submission,
     versions: versionsResult.rows,
     flags: flagsResult.rows,
+    reviews: reviewsResult.rows,
   };
 }
 

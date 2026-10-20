@@ -2,6 +2,7 @@ export const instant = false;
 
 import { notFound } from "next/navigation";
 import { getSubmission, getAuditLog, type FlagRow, type VersionRow, type AuditEventRow } from "@/lib/data/queries";
+import { lineDiff, type DiffLine } from "@/lib/diff";
 import { getRole } from "@/lib/role";
 import { acceptFlag, dismissFlag, resolveFlag, submitReview, reviseSubmission } from "@/app/actions";
 
@@ -67,6 +68,19 @@ export default async function SubmissionDetailPage({
   const unresolvedFlags = [...openFlags, ...acceptedFlags];
   const hasUnresolvedFlags = unresolvedFlags.length > 0;
 
+  // Find the last reviewed version to show a diff
+  const lastReview = submission.reviews[0]; // sorted DESC by created_at
+  const lastReviewedVersion = lastReview
+    ? submission.versions.find((v: VersionRow) => v.id === lastReview.version_id)
+    : null;
+  const showDiff =
+    isReviewer &&
+    lastReviewedVersion &&
+    lastReviewedVersion.id !== latestVersion.id;
+  const diffLines: DiffLine[] = showDiff
+    ? lineDiff(lastReviewedVersion.content, latestVersion.content)
+    : [];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -109,6 +123,32 @@ export default async function SubmissionDetailPage({
           {latestVersion.content}
         </pre>
       </div>
+
+      {/* Version Diff */}
+      {showDiff && diffLines.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h2 className="text-sm font-medium text-gray-500 mb-2">
+            Changes since last reviewed version (v{lastReviewedVersion.version_number} → v{latestVersion.version_number})
+          </h2>
+          <pre className="text-sm font-mono bg-gray-50 rounded p-3 overflow-x-auto">
+            {diffLines.map((line: DiffLine, i: number) => (
+              <div
+                key={i}
+                className={
+                  line.type === "added"
+                    ? "bg-green-100 text-green-800"
+                    : line.type === "removed"
+                      ? "bg-red-100 text-red-800 line-through"
+                      : ""
+                }
+              >
+                {line.type === "added" ? "+ " : line.type === "removed" ? "- " : "  "}
+                {line.text}
+              </div>
+            ))}
+          </pre>
+        </div>
+      )}
 
       {/* Open Flags */}
       {openFlags.length > 0 && (
