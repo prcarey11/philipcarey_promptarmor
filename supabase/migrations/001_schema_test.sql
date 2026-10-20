@@ -394,7 +394,35 @@ END $$;
 ROLLBACK;
 
 -- =============================================================================
--- Test 15: Derived status — draft (no versions)
+-- Test 15a: Approval blocked by open flags
+-- =============================================================================
+BEGIN;
+DO $$
+DECLARE
+  v_sub_id uuid;
+  v_ver_id uuid;
+BEGIN
+  INSERT INTO submissions (title, channel, product, submitter)
+    VALUES ('Test Ad', 'email', 'Personal Loan', 'alice')
+    RETURNING id INTO v_sub_id;
+  INSERT INTO versions (submission_id, version_number, content)
+    VALUES (v_sub_id, 1, 'v1 copy')
+    RETURNING id INTO v_ver_id;
+  -- Flag stays open (default state)
+  INSERT INTO flags (submission_id, version_id, source, location, problem, rule, fix)
+    VALUES (v_sub_id, v_ver_id, 'rule', 'headline', 'issue', 'rule', 'fix');
+  BEGIN
+    INSERT INTO reviews (version_id, reviewer, decision)
+      VALUES (v_ver_id, 'bob', 'approved');
+    RAISE NOTICE 'FAIL test_15a_approve_blocked_open_flags: no exception raised';
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'PASS test_15a_approve_blocked_by_open_flag';
+  END;
+END $$;
+ROLLBACK;
+
+-- =============================================================================
+-- Test 16: Derived status — draft (no versions)
 -- =============================================================================
 BEGIN;
 DO $$

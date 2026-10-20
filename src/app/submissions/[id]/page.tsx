@@ -61,7 +61,8 @@ export default async function SubmissionDetailPage({
     (f: FlagRow) => f.state === "resolved" || f.state === "dismissed"
   );
 
-  const hasAcceptedFlags = acceptedFlags.length > 0;
+  const unresolvedFlags = [...openFlags, ...acceptedFlags];
+  const hasUnresolvedFlags = unresolvedFlags.length > 0;
 
   return (
     <div className="space-y-6">
@@ -213,14 +214,21 @@ export default async function SubmissionDetailPage({
             <input type="hidden" name="decision" value="approved" />
             <button
               type="submit"
-              disabled={hasAcceptedFlags}
+              disabled={hasUnresolvedFlags}
               className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={hasAcceptedFlags ? "Resolve all accepted flags before approving" : ""}
             >
               Approve
             </button>
           </form>
         </div>
+      )}
+      {isReviewer && hasUnresolvedFlags && submission.status !== "approved" && (
+        <p className="text-sm text-amber-700">
+          Cannot approve: {openFlags.length > 0 && `${openFlags.length} open`}
+          {openFlags.length > 0 && acceptedFlags.length > 0 && " and "}
+          {acceptedFlags.length > 0 && `${acceptedFlags.length} accepted`}
+          {" "}flag(s) must be resolved or dismissed first.
+        </p>
       )}
 
       {/* Revision Form (submitter, when changes requested or approved) */}
