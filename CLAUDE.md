@@ -35,6 +35,8 @@ Domain background is in docs/RESEARCH.md; the original brief is docs/PROJECT_SPE
 - Rule checks are plain TypeScript functions in `lib/rules/`, each with unit tests.
 - When finishing a slice, list: what changed, which invariants it touches, and how they're tested.
 - Seed data covers clean ads, ads with violations, and one prompt-injection ad.
+- Run `npm run build` before every push. The production build type-checks the
+  entire project; tests alone don't catch build failures.
 - At the end of each slice, append proposed entries to DECISIONS.md in this
   format, then stop so I can edit them:
   ## <Decision>
