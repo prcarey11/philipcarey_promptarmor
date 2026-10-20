@@ -1,6 +1,6 @@
 # ClearPath Compliance Review
 
-> Live app: <URL> · Walkthrough video: <Loom link>
+> Live app: https://clearpath-compliance-ten.vercel.app/ · Walkthrough video: <Loom link>
 
 ## Problem
 
