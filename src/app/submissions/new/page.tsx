@@ -1,4 +1,5 @@
 import { submitAd } from "@/app/actions";
+import { SubmitButton } from "./submit-button";
 
 const CHANNELS = [
   { value: "email", label: "Email" },
@@ -83,12 +84,7 @@ export default function NewSubmissionPage() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="bg-gray-800 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700"
-        >
-          Submit for Review
-        </button>
+        <SubmitButton />
       </form>
     </div>
   );

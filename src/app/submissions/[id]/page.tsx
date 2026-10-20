@@ -3,6 +3,7 @@ export const instant = false;
 import { notFound } from "next/navigation";
 import { getSubmission, getAuditLog, type FlagRow, type VersionRow, type AuditEventRow } from "@/lib/data/queries";
 import { lineDiff, type DiffLine } from "@/lib/diff";
+import { STATUS_LABELS, SOURCE_LABELS, CHANNEL_LABELS } from "@/lib/labels";
 import { getRole } from "@/lib/role";
 import { acceptFlag, dismissFlag, resolveFlag, submitReview, reviseSubmission } from "@/app/actions";
 
@@ -13,12 +14,7 @@ function StatusBadge({ status }: { status: string }) {
     changes_requested: "bg-amber-100 text-amber-700",
     approved: "bg-green-100 text-green-700",
   };
-  const labels: Record<string, string> = {
-    draft: "Draft",
-    submitted: "Submitted",
-    changes_requested: "Changes Requested",
-    approved: "Approved",
-  };
+  const labels = STATUS_LABELS;
   return (
     <span
       className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${styles[status] ?? "bg-gray-100"}`}
@@ -36,7 +32,7 @@ function SourceBadge({ source }: { source: string }) {
   };
   return (
     <span className={`inline-block text-xs px-1.5 py-0.5 rounded ${styles[source] ?? "bg-gray-100"}`}>
-      {source}
+      {SOURCE_LABELS[source] ?? source}
     </span>
   );
 }
@@ -90,7 +86,7 @@ export default async function SubmissionDetailPage({
           <StatusBadge status={submission.status} />
         </div>
         <p className="text-sm text-gray-500">
-          {submission.product} &middot; {submission.channel} &middot; by {submission.submitter}
+          {submission.product} &middot; {CHANNEL_LABELS[submission.channel] ?? submission.channel} &middot; by {submission.submitter}
           &middot; Version {latestVersion.version_number}
         </p>
       </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listSubmissions } from "@/lib/data/queries";
+import { CHANNEL_LABELS, STATUS_LABELS } from "@/lib/labels";
 
 export const instant = false;
 
@@ -10,12 +11,7 @@ function StatusBadge({ status }: { status: string }) {
     changes_requested: "bg-amber-100 text-amber-700",
     approved: "bg-green-100 text-green-700",
   };
-  const labels: Record<string, string> = {
-    draft: "Draft",
-    submitted: "Submitted",
-    changes_requested: "Changes Requested",
-    approved: "Approved",
-  };
+  const labels = STATUS_LABELS;
   return (
     <span
       className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${styles[status] ?? "bg-gray-100 text-gray-700"}`}
@@ -75,7 +71,7 @@ export default async function QueuePage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{s.product}</td>
-                  <td className="px-4 py-3 text-gray-600">{s.channel}</td>
+                  <td className="px-4 py-3 text-gray-600">{CHANNEL_LABELS[s.channel] ?? s.channel}</td>
                   <td className="px-4 py-3 text-gray-600">{s.submitter}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={s.status} />
